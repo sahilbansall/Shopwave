@@ -23,6 +23,9 @@ try {
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/shopwave';
 
 async function connectDB() {
+  if (!process.env.MONGO_URI) {
+    console.warn('WARNING: process.env.MONGO_URI is not set. Falling back to local MongoDB (127.0.0.1:27017). Ensure MONGO_URI is set in Render Environment variables!');
+  }
   if (mongoose.connection.readyState === 0) {
     await mongoose.connect(MONGO_URI);
     console.log('MongoDB connected (ShopWave)');
