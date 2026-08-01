@@ -13,8 +13,12 @@ const bcrypt = require('bcryptjs');
 const Product = require('./models/Product');
 const User = require('./models/User');
 const Coupon = require('./models/Coupon');
-const dns = require('dns');
-dns.setServers(['8.8.8.8','1.1.1.1']);
+try {
+  const dns = require('dns');
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch (e) {
+  // Ignore DNS setServers errors on restricted container environments
+}
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/shopwave';
 

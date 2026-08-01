@@ -2,11 +2,11 @@
   "name": "shopwave-backend",
   "version": "1.0.0",
   "description": "ShopWave E-Commerce REST API — Node.js + Express + JWT Auth + JSON Database",
-  "main": "server.js",
+  "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
+    "start": "node index.js",
+    "dev": "node --watch index.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
