@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ShopWave — Full Featured E-Commerce Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="toast-stack" id="toast-stack"></div>
+
+<!-- FLASH SALE -->
+<div class="flash-bar glass" id="flash-bar">
+  ⚡ FLASH SALE — Up to 40% off Electronics ends in
+  <span class="flash-timer" id="flash-timer"><span id="ft-h">00</span>:<span id="ft-m">00</span>:<span id="ft-s">00</span></span>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner glass">
+    <div class="nav-logo" onclick="goPage('home')">
+      <div class="logo-icon">S</div>
+      <div class="logo-text">Shop<span>Wave</span></div>
+    </div>
+    <div class="nav-search">
+      <i class="fas fa-search"></i>
+      <input type="text" id="search-input" placeholder="Search products, brands..." autocomplete="off" />
+      <button class="mic-btn" id="mic-btn" title="Voice search"><i class="fas fa-microphone"></i></button>
+      <div class="search-suggest glass" id="search-suggest"></div>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#" onclick="goPage('home');return false" class="nav-link" data-page="home">Home</a></li>
+      <li><a href="#" onclick="goPage('compare');return false" class="nav-link" data-page="compare">Compare</a></li>
+      <li><a href="#" onclick="goPage('wishlist');return false" class="nav-link" data-page="wishlist">Wishlist</a></li>
+      <li><a href="#" onclick="goPage('orders');return false" class="nav-link" data-page="orders">Orders</a></li>
+    </ul>
+    <div class="nav-actions">
+      <select class="pill-select" id="currency-select" onchange="changeCurrency()"><option value="USD">$ USD</option><option value="INR">₹ INR</option></select>
+      <select class="pill-select" id="lang-select" onchange="changeLang()"><option value="en">EN</option><option value="hi">हिं</option></select>
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="fas fa-moon" id="theme-icon"></i></button>
+      <div class="notif-wrap">
+        <button class="nav-btn" onclick="toggleNotif()"><i class="fas fa-bell"></i><span class="badge-count" id="notif-count" style="display:none">0</span></button>
+        <div class="notif-dropdown glass" id="notif-dropdown"></div>
+      </div>
+      <button class="nav-btn" onclick="handleAccountClick()"><i class="fas fa-user"></i> <span id="account-label">Sign in</span></button>
+      <button class="nav-btn" onclick="goPage('wishlist')"><i class="fas fa-heart"></i><span class="badge-count" id="wishlist-count" style="display:none">0</span></button>
+      <button class="nav-btn cart-btn" onclick="openCart()"><i class="fas fa-bag-shopping"></i> Cart<span class="badge-count" id="cart-count" style="display:none">0</span></button>
+    </div>
+    <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('hidden')"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- ================= HOME ================= -->
+<div id="page-home">
+  <header class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-badge glass">✨ AI-Powered Shopping</div>
+        <h1 class="hero-title">Shop smarter with<br/><span class="grad">personalized picks</span></h1>
+        <p class="hero-desc">Curated electronics, footwear & lifestyle gear — with AI recommendations, live price drops, and same-day delivery in select cities.</p>
+        <div class="hero-actions">
+          <a href="#" class="btn-primary" onclick="document.getElementById('products-anchor').scrollIntoView({behavior:'smooth'});return false">Shop Now <i class="fas fa-arrow-right"></i></a>
+          <a href="#" class="btn-secondary glass" onclick="toggleChat();return false"><i class="fas fa-robot"></i> Ask AI Assistant</a>
+        </div>
+        <div class="hero-stats">
+          <div><div class="stat-num">12K+</div><div class="stat-label">Customers</div></div>
+          <div><div class="stat-num">4.8★</div><div class="stat-label">Avg Rating</div></div>
+          <div><div class="stat-num">98%</div><div class="stat-label">On-time</div></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="glass">
+          <div class="hero-card-img">🎧</div>
+          <div class="hero-card-title">Midnight Pro Headphones</div>
+          <div class="hero-card-price" id="hero-price">$299.99</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="section-header"><h2 class="section-title">Shop by <span>Category</span></h2></div>
+    <div class="categories-grid" id="categories-grid"></div>
+  </section>
+
+  <section class="section" id="rv-section" style="display:none">
+    <div class="section-header"><h2 class="section-title">Recently <span>Viewed</span></h2></div>
+    <div class="h-scroll rv-strip" id="recently-viewed"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-header"><h2 class="section-title">🔥 Best <span>Sellers</span></h2><p class="section-sub">Highest rated, most loved products</p></div>
+    <div class="products-grid" id="bestsellers-grid"></div>
+  </section>
+
+  <section class="section" id="products-anchor">
+    <div class="section-header"><div><h2 class="section-title">Featured <span>Products</span></h2><p class="section-sub" id="results-count"></p></div></div>
+    <div class="filter-bar">
+      <div class="filter-chips glass" id="filter-chips" style="padding:6px;border-radius:999px"></div>
+      <div class="filter-right">
+        <label style="font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:6px">Max price: <span id="price-range-label" style="color:var(--accent2);font-weight:700">$1000</span></label>
+        <input type="range" id="price-range" min="0" max="1000" value="1000" step="10" oninput="document.getElementById('price-range-label').textContent='$'+this.value" onchange="renderProducts(true)" style="width:120px;accent-color:var(--accent)" />
+        <label style="font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:6px"><input type="checkbox" id="filter-instock" onchange="renderProducts(true)"> In stock only</label>
+        <select class="pill-select" id="sort-select" onchange="renderProducts(true)">
+          <option value="default">Sort: Featured</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="rating">Highest Rated</option>
+          <option value="reviews">Most Reviewed</option>
+          <option value="discount">Biggest Discount</option>
+        </select>
+      </div>
+    </div>
+    <div class="ai-strip"><i class="fas fa-sparkles"></i> AI-curated for you based on your browsing</div>
+    <div class="products-grid" id="products-grid"></div>
+  </section>
+
+  <section class="section promo-section">
+    <div class="promo-grid">
+      <div class="promo-card glass" style="border-color:rgba(139,92,246,.35)!important">
+        <div class="promo-bg">🎧</div>
+        <div><div class="promo-tag">Limited Time</div><h3 class="promo-title">Electronics Sale<br/>Up to 40% Off</h3><p class="promo-desc">Headphones, smartwatches & more</p></div>
+      </div>
+      <div class="promo-card glass" style="border-color:rgba(34,211,238,.35)!important">
+        <div class="promo-bg">🧘</div>
+        <div><div class="promo-tag">Fitness Week</div><h3 class="promo-title">Gear Up for<br/>Your Best Self</h3><p class="promo-desc">Yoga mats, shoes & activewear</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="glass features-inner">
+      <div class="feature-item"><div class="feature-icon"><i class="fas fa-truck"></i></div><div><div class="feat-title">Free Shipping</div><div class="feat-desc">On orders over $100</div></div></div>
+      <div class="feature-item"><div class="feature-icon"><i class="fas fa-rotate-left"></i></div><div><div class="feat-title">30-Day Returns</div><div class="feat-desc">No questions asked</div></div></div>
+      <div class="feature-item"><div class="feature-icon"><i class="fas fa-lock"></i></div><div><div class="feat-title">Secure Checkout</div><div class="feat-desc">100% protected</div></div></div>
+      <div class="feature-item"><div class="feature-icon"><i class="fas fa-gift"></i></div><div><div class="feat-title">Loyalty Rewards</div><div class="feat-desc">Earn points every order</div></div></div>
+    </div>
+  </section>
+
+  <section class="section newsletter">
+    <div class="glass newsletter-inner">
+      <h3 class="nl-title">Get 15% off your first order</h3>
+      <p class="nl-desc">Subscribe for exclusive deals & price-drop alerts.</p>
+      <form class="nl-form" onsubmit="handleNewsletter(event)">
+        <input type="email" placeholder="Enter your email" required id="nl-email" />
+        <button type="submit" class="btn-primary">Subscribe</button>
+      </form>
+    </div>
+  </section>
+</div>
+
+<!-- ================= PRODUCT DETAIL ================= -->
+<div id="page-product" class="hidden">
+  <div class="breadcrumb"><a href="#" onclick="goPage('home');return false">Home</a><span>/</span><span id="detail-breadcrumb"></span></div>
+  <div class="product-detail">
+    <div class="detail-gallery">
+      <div class="main-img-wrap glass" id="main-product-img" onclick="openZoom()" style="cursor:zoom-in"></div>
+      <div class="thumb-row" id="thumb-row"></div>
+      <div class="glass hidden" id="inline-zoom-panel" style="margin-top:14px;padding:10px;text-align:center"></div>
+    </div>
+    <div class="detail-info">
+      <div class="detail-category" id="detail-category"></div>
+      <h1 class="detail-title" id="detail-title"></h1>
+      <div class="product-rating" style="margin-bottom:18px"><span class="stars" id="detail-stars"></span><span class="rating-count" id="detail-rating-score"></span></div>
+      <div class="detail-price-row">
+        <div class="detail-price" id="detail-price"></div>
+        <div class="price-original" id="detail-original" style="font-size:.95rem"></div>
+        <div class="detail-discount" id="detail-discount"></div>
+      </div>
+      <p class="detail-desc" id="detail-desc"></p>
+      <p class="delivery-est" id="detail-delivery" style="margin-bottom:16px"></p>
+      <div id="color-block"><div class="detail-sec-title">Color</div><div class="color-options" id="color-options"></div></div>
+      <div id="size-block"><div class="detail-sec-title">Size</div><div class="size-options" id="size-options"></div></div>
+      <div class="detail-sec-title">Quantity</div>
+      <div class="qty-row">
+        <div class="qty-control glass"><button class="qty-btn" id="qty-minus">−</button><span class="qty-num" id="qty-display">1</span><button class="qty-btn" id="qty-plus">+</button></div>
+        <button class="detail-add-btn glass" id="detail-add-btn"><i class="fas fa-bag-shopping"></i> Add to Cart</button>
+        <button class="icon-btn-lg glass" id="detail-wish-btn" title="Wishlist"><i class="fas fa-heart"></i></button>
+        <button class="icon-btn-lg glass" id="detail-compare-btn" title="Compare"><i class="fas fa-code-compare"></i></button>
+        <button class="icon-btn-lg glass" id="detail-share-btn" title="Share on WhatsApp"><i class="fab fa-whatsapp"></i></button>
+      </div>
+      <div class="detail-tags" id="detail-tags"></div>
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+        <span class="tag"><i class="fas fa-shield-halved" style="color:var(--success)"></i> Secure Payment</span>
+        <span class="tag"><i class="fas fa-badge-check" style="color:var(--accent2)"></i> Verified Seller</span>
+        <span class="tag"><i class="fas fa-rotate-left" style="color:var(--warn)"></i> Money-back Guarantee</span>
+      </div>
+      <div class="guarantee-bar">
+        <div class="guarantee-item glass"><i class="fas fa-truck"></i> Free delivery</div>
+        <div class="guarantee-item glass"><i class="fas fa-shield-halved"></i> 2-year warranty</div>
+        <div class="guarantee-item glass"><i class="fas fa-rotate-left"></i> 30-day returns</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="reviews-section">
+    <h2 class="section-title" style="margin-bottom:18px">Ratings & <span>Reviews</span></h2>
+    <div class="glass reviews-summary"><div class="big-rating" id="rev-avg">4.8</div><div><div class="stars" id="rev-stars" style="font-size:1.1rem"></div><div class="rating-count" id="rev-count">Based on 0 reviews</div></div></div>
+    <form class="glass review-form" onsubmit="submitReview(event)">
+      <div class="detail-sec-title">Write a review</div>
+      <div class="star-input" id="star-input"><i class="fas fa-star" data-v="1"></i><i class="fas fa-star" data-v="2"></i><i class="fas fa-star" data-v="3"></i><i class="fas fa-star" data-v="4"></i><i class="fas fa-star" data-v="5"></i></div>
+      <input type="text" class="form-input" id="review-name" placeholder="Your name" required style="margin-top:4px" />
+      <textarea class="form-textarea" id="review-text" rows="3" placeholder="Share your experience..." required></textarea>
+      <input type="file" accept="image/*" id="review-img" style="font-size:.75rem" />
+      <button type="submit" class="btn-primary" style="align-self:flex-start;margin-top:10px">Submit Review</button>
+    </form>
+    <div id="reviews-list"></div>
+  </div>
+
+  <section class="section" style="padding-top:0">
+    <div class="section-header"><h2 class="section-title">Frequently Bought <span>Together</span></h2></div>
+    <div class="products-grid" id="fbt-grid"></div>
+  </section>
+  <section class="section" style="padding-top:0">
+    <div class="section-header"><h2 class="section-title">You may also <span>like</span></h2></div>
+    <div class="products-grid" id="related-grid"></div>
+  </section>
+</div>
+
+<!-- ================= WISHLIST ================= -->
+<div id="page-wishlist" class="hidden">
+  <section class="section"><div class="section-header"><h2 class="section-title">My <span>Wishlist</span></h2></div><div class="products-grid" id="wishlist-grid"></div></section>
+</div>
+
+<!-- ================= COMPARE ================= -->
+<div id="page-compare" class="hidden">
+  <section class="section">
+    <div class="section-header"><h2 class="section-title">Compare <span>Products</span></h2><button class="btn-ghost glass" onclick="clearCompare()">Clear all</button></div>
+    <div class="glass" style="max-width:1300px;margin:0 auto;padding:20px;overflow-x:auto" id="compare-wrap"></div>
+  </section>
+</div>
+
+<!-- ================= CATEGORY LANDING PAGE ================= -->
+<div id="page-category" class="hidden">
+  <div class="glass" id="category-banner" style="max-width:1300px;margin:20px auto 0;padding:40px;border-radius:22px;display:flex;align-items:center;gap:20px">
+    <div id="category-banner-icon" style="font-size:3.5rem"></div>
+    <div>
+      <h1 class="section-title" id="category-banner-title" style="margin-bottom:6px"></h1>
+      <p class="section-sub" id="category-banner-count"></p>
+    </div>
+  </div>
+  <section class="section">
+    <div class="filter-chips glass" id="category-subfilter" style="max-width:1300px;margin:0 auto 20px;padding:6px;border-radius:999px;display:flex;flex-wrap:wrap;gap:8px"></div>
+    <div class="products-grid" id="category-products-grid"></div>
+  </section>
+</div>
+
+<!-- ================= 404 NOT FOUND ================= -->
+<div id="page-notfound" class="hidden">
+  <div style="max-width:500px;margin:80px auto;text-align:center;padding:0 24px">
+    <div style="font-size:5rem;margin-bottom:10px">🛸</div>
+    <h1 class="section-title" style="font-size:2.5rem;margin-bottom:10px">404</h1>
+    <p style="color:var(--muted);margin-bottom:24px">Oops — this page or product doesn't exist. It may have been removed or the link is broken.</p>
+    <button class="btn-primary" onclick="goPage('home')">Back to Home</button>
+  </div>
+</div>
+
+
+<!-- ================= AUTH ================= -->
+<div id="page-auth" class="hidden">
+  <div class="auth-wrap glass" id="login-box">
+    <h2 class="auth-title">Welcome back</h2>
+    <p class="auth-sub">Sign in to continue to ShopWave</p>
+    <div class="social-auth-row">
+      <button class="social-auth-btn" onclick="socialLogin('Google')"><i class="fab fa-google"></i> Google</button>
+      <button class="social-auth-btn" onclick="socialLogin('GitHub')"><i class="fab fa-github"></i> GitHub</button>
+    </div>
+    <div class="or-divider">OR</div>
+    <form onsubmit="handleLogin(event)">
+      <label class="form-label">Email</label><input type="email" class="form-input" id="login-email" required />
+      <label class="form-label">Password</label><input type="password" class="form-input" id="login-password" required minlength="4" />
+      <div style="text-align:right;margin:-8px 0 14px"><a href="#" onclick="openForgotPassword();return false" style="font-size:.75rem;color:var(--accent2)">Forgot password?</a></div>
+      <button type="submit" class="btn-full">Sign In</button>
+    </form>
+    <p class="auth-switch">Don't have an account? <a href="#" onclick="toggleAuthMode();return false">Create one</a></p>
+    <p class="role-hint">Demo admin login: <strong>admin@shopwave.com</strong> / <strong>admin123</strong></p>
+  </div>
+  <div class="auth-wrap glass hidden" id="signup-box">
+    <h2 class="auth-title">Create account</h2>
+    <p class="auth-sub">Join ShopWave for faster checkout</p>
+    <form onsubmit="handleSignup(event)">
+      <label class="form-label">Full Name</label><input type="text" class="form-input" id="signup-name" required />
+      <label class="form-label">Email</label><input type="email" class="form-input" id="signup-email" required />
+      <label class="form-label">Password</label><input type="password" class="form-input" id="signup-password" required minlength="4" />
+      <label class="form-label">Referral Code (optional)</label><input type="text" class="form-input" id="signup-ref" placeholder="e.g. SW-A1B2" />
+      <button type="submit" class="btn-full">Create Account</button>
+    </form>
+    <p class="auth-switch">Already have an account? <a href="#" onclick="toggleAuthMode();return false">Sign in</a></p>
+  </div>
+</div>
+
+<!-- ================= CHECKOUT ================= -->
+<div id="page-checkout" class="hidden">
+  <div class="checkout-layout">
+    <div>
+      <div class="checkout-steps"><div class="step-pill active">1. Address</div><div class="step-pill active">2. Payment</div><div class="step-pill active">3. Review</div></div>
+      <div class="glass checkout-card">
+        <h3 class="detail-sec-title" style="margin-bottom:14px">Delivery Address</h3>
+        <div id="checkout-addr-list"></div>
+        <button class="btn-ghost glass" onclick="openAddAddress()" style="margin-top:6px"><i class="fas fa-plus"></i> Add new address</button>
+      </div>
+      <div class="glass checkout-card">
+        <h3 class="detail-sec-title" style="margin-bottom:14px">Payment Method</h3>
+        <div class="pay-option glass selected" data-pay="card" onclick="selectPay(this)"><i class="fas fa-credit-card"></i> Credit / Debit Card</div>
+        <div class="pay-option glass" data-pay="upi" onclick="selectPay(this)"><i class="fas fa-mobile-screen"></i> UPI</div>
+        <div class="pay-option glass" data-pay="wallet" onclick="selectPay(this)"><i class="fas fa-wallet"></i> Wallet Balance ($50.00)</div>
+        <div class="pay-option glass" data-pay="cod" onclick="selectPay(this)"><i class="fas fa-money-bill-wave"></i> Cash on Delivery</div>
+      </div>
+      <div class="glass checkout-card">
+        <div class="giftwrap-row"><input type="checkbox" id="giftwrap-check" onchange="renderCheckout()" /> <span>🎁 Gift wrap this order (+$4.99)</span></div>
+        <div class="detail-sec-title" style="margin-bottom:8px">Loyalty Points</div>
+        <p style="font-size:.8rem;color:var(--muted)">You have <strong id="co-points" style="color:var(--accent2)"></strong> points — redeemable at checkout (1 pt = $0.01).</p>
+      </div>
+    </div>
+    <div class="glass checkout-card" style="position:sticky;top:90px">
+      <h3 class="detail-sec-title" style="margin-bottom:14px">Order Summary</h3>
+      <div id="checkout-items"></div>
+      <div class="promo-row-inline"><input type="text" id="checkout-promo" placeholder="Promo code (try WELCOME)" /><button class="btn-ghost glass" onclick="applyPromo()">Apply</button></div>
+      <div class="summary-row"><span>Subtotal</span><span id="co-subtotal"></span></div>
+      <div class="summary-row"><span>Shipping</span><span id="co-shipping"></span></div>
+      <div class="summary-row"><span>Gift wrap</span><span id="co-giftwrap"></span></div>
+      <div class="summary-row"><span>Discount</span><span id="co-discount"></span></div>
+      <div class="summary-row"><span>Tax (GST 5%)</span><span id="co-tax"></span></div>
+      <div class="summary-total-row"><span style="font-weight:700">Total</span><span class="detail-price" style="font-size:1.3rem" id="co-total"></span></div>
+      <button class="btn-full" style="margin-top:14px" onclick="placeOrder()">Place Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ORDERS ================= -->
+<div id="page-orders" class="hidden">
+  <section class="section"><div class="section-header"><h2 class="section-title">My <span>Orders</span></h2></div><div id="orders-list" style="max-width:820px;margin:0 auto"></div></section>
+</div>
+
+<!-- ================= USER DASHBOARD ================= -->
+<div id="page-dashboard" class="hidden">
+  <div class="dash-layout">
+    <div class="glass dash-nav">
+      <button class="active" onclick="dashTab('overview',this)"><i class="fas fa-chart-simple"></i> Overview</button>
+      <button onclick="dashTab('profile',this)"><i class="fas fa-user"></i> Profile</button>
+      <button onclick="dashTab('addresses',this)"><i class="fas fa-location-dot"></i> Address Book</button>
+      <button onclick="dashTab('loyalty',this)"><i class="fas fa-gift"></i> Loyalty & Referral</button>
+      <button onclick="dashTab('notifications',this)"><i class="fas fa-bell"></i> Notification Settings</button>
+      <button onclick="goPage('orders')"><i class="fas fa-box"></i> Orders</button>
+      <button onclick="goPage('wishlist')"><i class="fas fa-heart"></i> Wishlist</button>
+      <button onclick="logout()" style="color:var(--danger)"><i class="fas fa-right-from-bracket"></i> Log Out</button>
+    </div>
+    <div class="glass dash-card" id="dash-content"></div>
+  </div>
+</div>
+
+<!-- ================= ADMIN PANEL ================= -->
+<div id="page-admin" class="hidden">
+  <div class="dash-layout">
+    <div class="glass dash-nav">
+      <button class="active" onclick="adminTab('dashboard',this)"><i class="fas fa-gauge"></i> Dashboard</button>
+      <button onclick="adminTab('products',this)"><i class="fas fa-box-open"></i> Products</button>
+      <button onclick="adminTab('orders',this)"><i class="fas fa-receipt"></i> Orders</button>
+      <button onclick="adminTab('users',this)"><i class="fas fa-users"></i> Users</button>
+      <button onclick="adminTab('coupons',this)"><i class="fas fa-tags"></i> Coupons</button>
+      <button onclick="logout()" style="color:var(--danger)"><i class="fas fa-right-from-bracket"></i> Log Out</button>
+    </div>
+    <div class="glass dash-card" id="admin-content"></div>
+  </div>
+</div>
+
+<!-- CART DRAWER -->
+<div class="overlay" id="overlay" onclick="closeAllOverlays()"></div>
+<div class="cart-drawer glass" id="cart-drawer">
+  <div class="drawer-head"><div class="drawer-title">Your Cart</div><button class="drawer-close" onclick="closeCart()">&times;</button></div>
+  <div class="drawer-tabs">
+    <button class="drawer-tab active" id="tab-cart-btn" onclick="switchDrawerTab('cart')">Cart</button>
+    <button class="drawer-tab" id="tab-saved-btn" onclick="switchDrawerTab('saved')">Saved for later</button>
+  </div>
+  <div class="drawer-items" id="drawer-items"></div>
+  <div class="drawer-foot" id="drawer-foot">
+    <div class="drawer-subtotal"><span>Subtotal</span><span id="drawer-subtotal">$0.00</span></div>
+    <button class="btn-full" onclick="goToCheckout()">Checkout</button>
+  </div>
+</div>
+
+<!-- QUICK MODAL (generic use: address form etc) -->
+<div class="modal-overlay" id="quick-modal" onclick="if(event.target===this)closeQuickModal()">
+  <div class="glass modal-box" id="quick-modal-body"></div>
+</div>
+
+<!-- CHATBOT -->
+<button class="chatbot-fab" onclick="toggleChat()"><i class="fas fa-robot"></i></button>
+<div class="glass chatbot-win" id="chatbot-win">
+  <div class="chat-head"><i class="fas fa-robot" style="color:var(--accent2)"></i> <strong>ShopWave AI Assistant</strong></div>
+  <div class="chat-body" id="chat-body"></div>
+  <div class="chat-quick" id="chat-quick"></div>
+  <div class="chat-input-row"><input type="text" id="chat-input" placeholder="Ask me anything..." /><button onclick="sendChat()"><i class="fas fa-paper-plane"></i></button></div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="glass footer-grid" style="padding:36px">
+    <div class="footer-brand">
+      <div class="nav-logo"><div class="logo-icon">S</div><div class="logo-text">Shop<span>Wave</span></div></div>
+      <p class="footer-desc">Your trusted destination for curated electronics, footwear, and lifestyle products — powered by AI recommendations.</p>
+      <div class="social-links"><a class="social-link" href="#"><i class="fab fa-facebook-f"></i></a><a class="social-link" href="#"><i class="fab fa-instagram"></i></a><a class="social-link" href="#"><i class="fab fa-twitter"></i></a><a class="social-link" href="#"><i class="fab fa-youtube"></i></a></div>
+    </div>
+    <div class="footer-col"><h4>Shop</h4><ul><li><a href="#" onclick="goPage('home');return false">All Products</a></li><li><a href="#">Deals</a></li><li><a href="#">New Arrivals</a></li></ul></div>
+    <div class="footer-col"><h4>Support</h4><ul><li><a href="#" onclick="toggleChat();return false">Live Chat</a></li><li><a href="#">Shipping Info</a></li><li><a href="#">Returns</a></li></ul></div>
+    <div class="footer-col"><h4>Company</h4><ul><li><a href="#">About</a></li><li><a href="#">Careers</a></li><li><a href="#">Privacy Policy</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 ShopWave. All rights reserved.</p>
+    <div style="display:flex;gap:8px"><span class="pay-icon">VISA</span><span class="pay-icon">MASTERCARD</span><span class="pay-icon">UPI</span><span class="pay-icon">COD</span></div>
+  </div>
+</footer>
+
+
+<!-- SPIN WHEEL POPUP (first visit) -->
+<div class="modal-overlay" id="spin-modal">
+  <div class="glass modal-box" style="max-width:360px;text-align:center">
+    <button class="modal-close" onclick="closeSpinWheel(false)">&times;</button>
+    <h3 class="detail-sec-title" style="margin-bottom:6px;font-size:1rem">🎉 Welcome to ShopWave!</h3>
+    <p style="font-size:.82rem;color:var(--muted);margin-bottom:16px">Spin the wheel for an instant discount</p>
+    <div id="wheel-wrap" style="position:relative;width:220px;height:220px;margin:0 auto 18px">
+      <div id="wheel" style="width:100%;height:100%;border-radius:50%;transition:transform 4s cubic-bezier(.17,.67,.12,.99);background:conic-gradient(#8b5cf6 0deg 60deg,#22d3ee 60deg 120deg,#f472b6 120deg 180deg,#34d399 180deg 240deg,#fbbf24 240deg 300deg,#8b5cf6 300deg 360deg);position:relative">
+        <span style="position:absolute;top:14%;left:50%;transform:translateX(-50%) rotate(30deg);font-size:.68rem;font-weight:800;color:#fff">5% OFF</span>
+        <span style="position:absolute;top:38%;right:6%;transform:rotate(90deg);font-size:.68rem;font-weight:800;color:#fff">10% OFF</span>
+        <span style="position:absolute;bottom:14%;right:22%;transform:rotate(150deg);font-size:.68rem;font-weight:800;color:#fff">15% OFF</span>
+        <span style="position:absolute;bottom:8%;left:36%;font-size:.68rem;font-weight:800;color:#fff">20% OFF</span>
+        <span style="position:absolute;bottom:38%;left:4%;transform:rotate(-90deg);font-size:.68rem;font-weight:800;color:#fff">25% OFF</span>
+        <span style="position:absolute;top:14%;right:14%;transform:rotate(-30deg);font-size:.68rem;font-weight:800;color:#fff">30% OFF</span>
+      </div>
+      <div style="position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:16px solid var(--accent3);z-index:5"></div>
+    </div>
+    <button class="btn-full" id="spin-btn" onclick="spinWheel()">Spin Now</button>
+  </div>
+</div>
+
+<!-- IMAGE ZOOM LIGHTBOX -->
+<div class="modal-overlay" id="zoom-modal" onclick="closeZoom()">
+  <div style="font-size:14rem;max-height:90vh" id="zoom-content"></div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
