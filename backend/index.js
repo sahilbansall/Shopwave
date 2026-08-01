@@ -1,6 +1,9 @@
-// ============================================================
-// server.js - ShopWave Backend Entry Point
-// ============================================================
+// Server entry point
+const crypto = require('crypto');
+if (!globalThis.crypto) {
+  globalThis.crypto = crypto;
+}
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
