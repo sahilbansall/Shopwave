@@ -1,6 +1,6 @@
 # ShopWave — Full-Stack E-Commerce Platform
 
-**A production-style e-commerce web application built as a final year project**, featuring a glassmorphism single-page frontend, a Node.js/Express REST API backend, JWT authentication, and a 250+ product catalog (real products & photos via the DummyJSON API) with server-side search, filtering, and pagination.
+**A production-style e-commerce web application built as an internship project**, featuring a glassmorphism single-page frontend, a Node.js/Express REST API backend, JWT authentication, and a 250+ product catalog (real products & photos via the DummyJSON API) with server-side search, filtering, and pagination.
 
 **Live Demo:** https://fancy-lamington-4698e4.netlify.app
 **Backend API:** https://shopwave-fullstack.onrender.com
